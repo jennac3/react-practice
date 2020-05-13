@@ -49,11 +49,9 @@ function sendChatAction(value) {
 export default function Store(props) {
     const [allChats, dispatch] = React.useReducer(reducer, {
         '#general': [
+            {from: 'jenna', msg: 'hi', timestamp:"12:00"}
         ],
         '#fun': [
-            {from: 'jenna', msg: 'b1', timestamp:"09:30"},
-            {from: 'jenna', msg: 'b2', timestamp:"09:30"},
-            {from: 'jenna', msg: 'b3', timestamp:"09:30"},
         ]
     });
 
