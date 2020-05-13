@@ -1,5 +1,5 @@
-import React, { createContext, Component, useState } from 'react';
-import {CTX} from './Store';
+import React, { createContext, useState } from 'react';
+import { CTX } from './Store';
 import { makeStyles } from '@material-ui/core/styles';
 
 

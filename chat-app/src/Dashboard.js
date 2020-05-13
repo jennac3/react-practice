@@ -45,6 +45,7 @@ export default function Dashboard() {
     );
 }
 
+
 // VALID APPROACH # 1
 /*class Header extends React.Component {
     static contextType = ChatContext;
@@ -83,6 +84,7 @@ class Header extends React.Component {
     }
 }
 
+
 function Profile() {
     return (
         <List>
@@ -97,6 +99,7 @@ function Profile() {
         </List>
     );
 }
+
 
 class Channels extends React.Component {
     render() {
@@ -136,6 +139,7 @@ class Channels extends React.Component {
     }
 }
 
+
 class ChatBox extends React.Component {
     render() {
         return (
@@ -147,6 +151,7 @@ class ChatBox extends React.Component {
         )
     }
 }
+
 
 class MessageHistory extends React.Component {
     render() {
@@ -174,6 +179,7 @@ class MessageHistory extends React.Component {
         );
     }
 }
+
 
 class MessageArea extends React.Component {
     render() {
@@ -211,3 +217,4 @@ class MessageArea extends React.Component {
         );
     }
 }
+
