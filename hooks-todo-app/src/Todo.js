@@ -1,31 +1,31 @@
 import React, { Component, useState } from 'react';
 
+import Button from '@material-ui/core/Button';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 
 export default function Todo() {
-    const [textInput, changeTextInput] = useState([]);
-    const [todos, setTodos] = useState(['hmm']);
+    const [textInput, changeTextInput] = useState('');
+    const [todos, setTodos] = useState([{'text': 'Buy orange', id: Date.now()}]);
 
     return (
         <div className="App">
         <h1>TODO Application</h1>
 
-        <form>
-            <h1>Hello~</h1>
-            <p>Enter your TODO list, and submit:</p>
+        <form onSubmit={(e) => {
+            e.preventDefault();
+            if (textInput === '') return
+            setTodos([...todos, {id: Date.now(), text: textInput}]);
+            e.target.reset();
+        }}>
             <input
             type='text'
-            placeholder='Enter TODO'
-            value={textInput}
-            onKeyDown={(e) => {
-                if(e.key === "Enter" || e.which == 13 || e.keyCode == 13){
-                    setTodos([todos, e.target.value]);
-                    changeTextInput('');
-                }
+            placeholder='Your TODO'
+            onChange={(e) => {
+                e.preventDefault();
+                changeTextInput(e.target.value);
             }}
-            onChange={(e) => changeTextInput(e.target.value)}
             />
             <button type="submit">
                 add
@@ -37,10 +37,16 @@ export default function Todo() {
             {todos.map((todo, index) =>
                 <ListItem
                     button
-                    key={todo}>
-                    <ListItemText primary={todo}>
-                        {index} - {todo}
+                    key={todo.text}>
+                    <ListItemText primary={todo.text}>
+                        {todo.text}
                     </ListItemText>
+
+                    <Button onClick={(e) => {
+                        setTodos(todos.filter((t) => t.id != todo.id))
+                    }}>remove</Button>
+                    
+                    <Button>mark as complete</Button>
                 </ListItem>
             )}
             </List>
