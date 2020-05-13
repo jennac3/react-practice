@@ -1,4 +1,5 @@
 import React from 'react';
+import io from 'socket.io-client';
 
 export const CTX = React.createContext();
 
@@ -20,43 +21,54 @@ export const CTX = React.createContext();
 */
 
 function reducer(state, action) {
-    const {from, msg, channel} = action.payload;
+    const {from, msg, channel, timestamp} = action.payload;
     switch(action.type) {
         case "RECEIVE_MESSAGE":
-            return {
+            console.log(state);
+            const newstate = {
                 ...state,
                 [channel]: [
                     ...state[channel],
-                    {
-                        from,
-                        msg,
-                        time: '00:00'
-                    }
+                    {from, msg, timestamp}
                 ]
             }
+            console.log(newstate);
+            return newstate;
         default:
             return state
     }
 }
 
-const initState = {
-    '#general': [
-        {from: 'jenna', msg: 'h1', timestamp:"09:30"},
-        {from: 'jenna', msg: 'h2', timestamp:"09:30"},
-        {from: 'jenna', msg: 'h3', timestamp:"09:30"},
-    ],
-    '#fun': [
-        {from: 'jenna', msg: 'b1', timestamp:"09:30"},
-        {from: 'jenna', msg: 'b2', timestamp:"09:30"},
-        {from: 'jenna', msg: 'b3', timestamp:"09:30"},
-    ]
+let socket;
+
+function sendChatAction(value) {
+    socket.emit('chat message', value);
 }
 
 export default function Store(props) {
-    const reducerHook = React.useReducer(reducer, initState);
+    const [allChats, dispatch] = React.useReducer(reducer, {
+        '#general': [
+        ],
+        '#fun': [
+            {from: 'jenna', msg: 'b1', timestamp:"09:30"},
+            {from: 'jenna', msg: 'b2', timestamp:"09:30"},
+            {from: 'jenna', msg: 'b3', timestamp:"09:30"},
+        ]
+    });
+
+    if (!socket) {
+        socket = io(':3001');
+
+        socket.on('chat message', function(msg) {
+            dispatch({type: 'RECEIVE_MESSAGE', payload: msg})
+        });
+    }
+
+    //const user = 'user' + Math.random(100).toFixed(2);
+    const user = "jenna";
 
     return (
-        <CTX.Provider value={reducerHook}>
+        <CTX.Provider value={{allChats, sendChatAction, user}}>
             {props.children}
         </CTX.Provider>
     )

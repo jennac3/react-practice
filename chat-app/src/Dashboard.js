@@ -12,6 +12,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import Avatar from '@material-ui/core/Avatar';
 import Fab from '@material-ui/core/Fab';
 import SendIcon from '@material-ui/icons/Send';
+import Button from '@material-ui/core/Button';
 import {CTX} from './Store';
 
 const useStyles = makeStyles({
@@ -20,7 +21,6 @@ const useStyles = makeStyles({
   },
   chatSection: {
     width: '100%',
-    height: '80vh'
   },
   headBG: {
       backgroundColor: '#e0e0e0'
@@ -42,13 +42,15 @@ const useStyles = makeStyles({
 export default function Dashboard() {
     const classes = useStyles();
     // CTX store
-    const [allChats] = React.useContext(CTX);
+    const {allChats, sendChatAction, user} = React.useContext(CTX);
     const channels = Object.keys(allChats);
 
     // local state
-    const [input, changeInputValue] = useState('');
+    const [textInput, changeTextInputValue] = useState('');
+    const [searchInput, changeSearchInputValue] = useState('');
     const [activeChannel, changeActiveChannel] = useState(channels[0]);
 
+    console.log("update");
     return (
         <div>
         <Grid container>
@@ -70,11 +72,15 @@ export default function Dashboard() {
                 </List>
                 <Divider />
                 <Grid item xs={12} style={{padding: '10px'}}>
-                    <TextField id="outlined-basic-email" label="Search" variant="outlined" fullWidth />
+                    <TextField
+                        id="outlined-basic-email" label="Search" variant="outlined"
+                        value={searchInput}
+                        onChange={(e) => changeSearchInputValue(e.target.value)}
+                        fullWidth />
                 </Grid>
                 <Divider />
                 <List>
-                    {channels.map((channel) =>
+                    {channels.filter((channel) => channel.includes(searchInput)).map((channel) =>
                         <ListItem
                             button
                             className={channel == activeChannel ? classes.activeChannel : null}
@@ -108,8 +114,18 @@ export default function Dashboard() {
                         <TextField
                             id="outlined-basic-email"
                             label="Type Something"
-                            value={input}
-                            onChange={(e) => changeInputValue(e.target.value)}
+                            value={textInput}
+                            onKeyDown={(e) => {
+                                if(e.key === "Enter" || e.which == 13 || e.keyCode == 13){
+                                    sendChatAction({
+                                        msg: textInput,
+                                        from: user,
+                                        channel: activeChannel,
+                                        timestamp: new Date().getHours() + ":" + new Date().getMinutes()});
+                                    changeTextInputValue('');
+                                }
+                            }}
+                            onChange={(e) => changeTextInputValue(e.target.value)}
                             fullWidth />
                     </Grid>
                     <Grid xs={1} align="right">
