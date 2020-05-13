@@ -45,6 +45,7 @@ function sendChatAction(value) {
     socket.emit('chat message', value);
 }
 
+// HELPFUL STUFF I LEARNED: when hook get updated, it rerenders function
 export default function Store(props) {
     const [allChats, dispatch] = React.useReducer(reducer, {
         '#general': [
@@ -56,13 +57,20 @@ export default function Store(props) {
         ]
     });
 
-    if (!socket) {
-        socket = io(':3001');
-
-        socket.on('chat message', function(msg) {
-            dispatch({type: 'RECEIVE_MESSAGE', payload: msg})
-        });
-    }
+    // HELPFUL STUFF I LEARNED:
+    // We should useEffect to make sure the following socket gets initialized
+    // only ONCE. Otherwise, this code may run multiple times.
+    // Let it run ONLY when the component is mounted.
+    React.useEffect(() => {
+        // do this only once, when the component is mounted
+        if (!socket) {
+            socket = io(':3001');
+    
+            socket.on('chat message', function(msg) {
+                dispatch({type: 'RECEIVE_MESSAGE', payload: msg})
+            });
+        }
+    });
 
     //const user = 'user' + Math.random(100).toFixed(2);
     const user = "jenna";

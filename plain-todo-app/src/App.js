@@ -8,9 +8,9 @@ class App extends Component {
       todos: []
     };
 
-    this.onSubmit = this.onSubmit.bind(this);
   }
 
+  // 1. for () => {} function we don't need bind
   onSubmit = (event) => {
     event.preventDefault();
     if(this.state.input === '') return;
@@ -21,6 +21,12 @@ class App extends Component {
     });
     this.setState({input: ''});
   }
+
+  // 2, typically we don't use form for a single page application
+  // use onSubmit on button instead of form.
+
+  // for MAP, you should do "key".
+  // map => <li key={todo}></li>
 
   render() {
     return (
