@@ -44,9 +44,7 @@ export default function Todo() {
 
                     <Button onClick={(e) => {
                         setTodos(todos.filter((t) => t.id != todo.id))
-                    }}>remove</Button>
-                    
-                    <Button>mark as complete</Button>
+                    }}>mark as complete</Button>
                 </ListItem>
             )}
             </List>
