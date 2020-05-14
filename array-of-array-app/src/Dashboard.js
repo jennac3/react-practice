@@ -25,6 +25,8 @@ import 'prismjs/components/prism-clike';
 import 'prismjs/components/prism-javascript';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import ErrorIcon from '@material-ui/icons/Error';
+import fileDownload from 'js-file-download';
+import DescriptionIcon from '@material-ui/icons/Description';
 
 import {JsonSyncContext, JsonSyncContextProvider} from './JsonSyncContextProvider';
 
@@ -123,7 +125,7 @@ class FormsList extends React.Component {
                             )}
                             <Button
                                 variant="contained"
-                                color="primary"
+                                color="action"
                                 onClick={() => {
                                     const newFormTitle = '@F' + Math.random(1000).toFixed(2) * 1000;
                                     const newStrings = {
@@ -188,7 +190,7 @@ class TextFields extends React.Component {
                                     />
                             )}
                         </Grid>
-                        <Button variant="contained" color="primary" onClick={() => {
+                        <Button variant="contained" color="action" onClick={() => {
                             const newStrings = {
                                 ...stringsOfStringsData,
                                 [activeForm]: [
@@ -226,15 +228,20 @@ class JsonResults extends React.Component {
                                 }
                             </div>
     
-                            <div style={{ position: 'absolute', right: '3%', bottom: '5%' }}>
-                                <CopyToClipboard
-                                    text={jsonEditorCode}
-                                    onCopy={() => setJsonCopied(true)}>
-                                    <Button>
-                                        <FileCopyIcon></FileCopyIcon>
-                                        {jsonCopied ? "Copied!" : "Copy JSON to Clipboard"}
-                                    </Button>
-                                </CopyToClipboard>
+
+                            <div style={{ position: 'absolute', right: '0%', bottom: '0%', verticalAlign: "middle" }}>
+                                <Button variant="contained"
+                                        color="primary"
+                                        style={{ display: 'inline-block', margin: '5px' }}
+                                        onClick={() => fileDownload(jsonEditorCode, "sample.json")}>
+                                    <DescriptionIcon style={{ marginRight: "5px" }}/>  {"Import"}
+                                </Button>
+                                <Button variant="contained"
+                                        color="primary"
+                                        style={{ display: 'inline-block', margin: '5px' }}
+                                        onClick={() => fileDownload(jsonEditorCode, "sample.json")}>
+                                    <SaveAltIcon style={{ marginRight: "5px" }}/>  {"Download"}
+                                </Button>
                             </div>
                         </div>
                         <Divider/>
