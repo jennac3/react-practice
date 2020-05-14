@@ -8,7 +8,7 @@ const useStyles = makeStyles({
       maxHeight: '100vh',
       overflowY: 'scroll'
     },
-    resultsArea: {
+    jsonResultsArea: {
       minHeight: '100vh',
       maxHeight: '100vh',
       overflowY: 'scroll',
@@ -19,16 +19,13 @@ const useStyles = makeStyles({
     },
 });
 
-export const AOAContext = createContext();
+export const JsonSyncContext = createContext();
 
-export function AOAContextProvider(props) {
+export function JsonSyncContextProvider(props) {
     const classes = useStyles();
 
-    // CTX store
-    // const {allStrings, addForm, user} = React.useContext(CTX);
-
     // local state
-    const allStringsState = useState({
+    const stringsOfStringsDataState = useState({
       '@F123': [
           {id: '010', content: ''}
       ],
@@ -36,36 +33,15 @@ export function AOAContextProvider(props) {
           {id: '922', content: ''}
       ],
     });
-    const [ allStrings, setAllStrings ] = allStringsState;
-    const forms = Object.keys(allStrings);
+    const [ stringsOfStringsData, setStringsOfStringsData ] = stringsOfStringsDataState;
 
-    const jsonEditorCodeState = useState(JSON.stringify(allStrings, undefined, 4));
+    const jsonEditorCodeState = useState(JSON.stringify(stringsOfStringsData, undefined, 4));
     const [ jsonEditorCode, setJsonEditorCode ] = jsonEditorCodeState;
 
+    const forms = Object.keys(stringsOfStringsData);
     const activeFormState = useState(forms[0]);
+
     const formDataState = useState([[]]);
-
-    /*const countState = useState(0);
-    const messageState = useState("");
-
-    const [count, setCount] = countState;
-    const [message, setMessage] = messageState;
-
-    const hasCountChanged = useCompare(count)
-    const hasMessageChanged = useCompare(message);
-
-    React.useEffect(() => {
-      if (hasCountChanged) {
-        console.log("count has changed");
-        setMessage(`count is ${count}`)
-      }
-      if (hasMessageChanged) {
-        console.log("message has changed");
-      }
-    }, [count, message]);*/
-
-    const hasJsonEditorCodeChanged = useCompare(jsonEditorCode);
-    const hasAllStringsChanged = useCompare(allStrings);
 
     const jsonCopiedState = useState(false);
     const [ jsonCopied, setJsonCopied ] = jsonCopiedState;
@@ -73,27 +49,29 @@ export function AOAContextProvider(props) {
     const jsonStatusState = useState("green");
     const [ jsonStatus, setJsonStatus ] = jsonStatusState;
 
+    const hasJsonEditorCodeChanged = useCompare(jsonEditorCode);
+    const hasstringsOfStringsDataChanged = useCompare(stringsOfStringsData);
     React.useEffect(() => {
       if (hasJsonEditorCodeChanged) {
         setJsonCopied(false);
         try {
           const jsonObject = JSON.parse(jsonEditorCode);
-          setAllStrings(jsonObject);
+          setStringsOfStringsData(jsonObject);
           setJsonStatus("green");
         } catch (e) {
           setJsonStatus("red");
         }
         console.log("jsonEditorCode has changed");
       }
-      if (hasAllStringsChanged) {
-        console.log("allStrings has changed");
-        setJsonEditorCode(JSON.stringify(allStrings, undefined, 4));
+      if (hasstringsOfStringsDataChanged) {
+        console.log("stringsOfStringsData has changed");
+        setJsonEditorCode(JSON.stringify(stringsOfStringsData, undefined, 4));
       }
-    }, [jsonEditorCode, allStrings]);
+    }, [jsonEditorCode, stringsOfStringsData]);
 
     const state = {
         classes,
-        allStringsState,
+        stringsOfStringsDataState,
         activeFormState,
         formDataState,
         jsonEditorCodeState,
@@ -102,9 +80,9 @@ export function AOAContextProvider(props) {
     };
 
     return (
-        <AOAContext.Provider value={{...state}}>
+        <JsonSyncContext.Provider value={{...state}}>
             {props.children}
-        </AOAContext.Provider>
+        </JsonSyncContext.Provider>
     );
 }
 
