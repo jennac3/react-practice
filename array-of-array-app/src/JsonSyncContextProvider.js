@@ -27,7 +27,9 @@ export function JsonSyncContextProvider(props) {
     // local state
     const stringsOfStringsDataState = useState({
       '@F123': [
-          {id: '010', content: ''}
+          {id: '010', content: 'a'},
+          {id: '010', content: 'b'},
+          {id: '010', content: 'c'},
       ],
       '@F301': [
           {id: '922', content: ''}

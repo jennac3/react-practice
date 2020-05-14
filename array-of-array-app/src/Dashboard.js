@@ -27,6 +27,9 @@ import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import ErrorIcon from '@material-ui/icons/Error';
 import fileDownload from 'js-file-download';
 import DescriptionIcon from '@material-ui/icons/Description';
+import ButtonGroup from '@material-ui/core/ButtonGroup';
+import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
+import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
 
 import {JsonSyncContext, JsonSyncContextProvider} from './JsonSyncContextProvider';
 
@@ -153,13 +156,54 @@ class TextFields extends React.Component {
                 const { classes, stringsOfStringsDataState, activeFormState } = context;
                 const [ activeForm ] = activeFormState;
                 const [ stringsOfStringsData, setStringsOfStringsData ] = stringsOfStringsDataState;
+
+                const onReorderClick = (index, newIndex) => {
+                    const newStringsData = stringsOfStringsData[activeForm];
+                    if (newIndex < 0 || newIndex >= newStringsData.length) return;
+                    // swap values
+                    const swapVal = newStringsData[index];
+                    newStringsData[index] = newStringsData[newIndex];
+                    newStringsData[newIndex] = swapVal;
+
+                    console.log(JSON.stringify({
+                        ...stringsOfStringsData,
+                        [activeForm]: newStringsData
+                    }));
+
+                    console.log(JSON.stringify(newStringsData));
+
+                    setStringsOfStringsData({
+                        ...stringsOfStringsData,
+                        [activeForm]: newStringsData
+                    });
+                    /*
+                    let newErrorSchema;
+                    if (this.props.errorSchema) {
+                        newErrorSchema = {};
+                        const errorSchema = this.props.errorSchema;
+                        for (let i in errorSchema) {
+                            if (i == index) {
+                                newErrorSchema[newIndex] = errorSchema[index];
+                            } else if (i == newIndex) {
+                                newErrorSchema[index] = errorSchema[newIndex];
+                            } else {
+                                newErrorSchema[i] = errorSchema[i];
+                            }
+                        }
+                    }
+                    const newStrings = {
+                            ...stringsOfStringsData,
+                            [activeForm]: stringsOfStringsData[activeForm].filter((s) => s.id != str.id)
+                        };
+                        setStringsOfStringsData(newStrings);
+                    */
+                }
                 return (
                     <div className={classes.messageArea}>
                         <Grid container style={{padding: '20px'}}>
-                            {stringsOfStringsData[activeForm].map((str) =>
+                            {stringsOfStringsData[activeForm].map((str, index) =>
                                 <TextField
                                     id="outlined-full-width"
-                                    label={"label"}
                                     value={str.content}
                                     onChange={(e) => {
                                         const newStrings = {...stringsOfStringsData};
@@ -176,15 +220,27 @@ class TextFields extends React.Component {
                                         shrink: true,
                                     }}
                                     InputProps={{
-                                        endAdornment: <Button onClick={() => {
-                                                                const newStrings = {
-                                                                    ...stringsOfStringsData,
-                                                                    [activeForm]: stringsOfStringsData[activeForm].filter((s) => s.id != str.id)
-                                                                };
-                                                                setStringsOfStringsData(newStrings);
-                                                            }}>
-                                                            <CancelIcon/>
-                                                        </Button>
+                                        endAdornment: (
+                                            <ButtonGroup color="primary" aria-label="outlined primary button group">
+                                                <Button onClick={() => onReorderClick(index, index - 1)}
+                                                        disabled={index == 0}>
+                                                    <ArrowUpwardIcon/>
+                                                </Button>
+                                                <Button onClick={() => onReorderClick(index, index + 1)}
+                                                        disabled={index == stringsOfStringsData[activeForm].length-1}>
+                                                    <ArrowDownwardIcon/>
+                                                </Button>
+                                                <Button onClick={() => {
+                                                        const newStrings = {
+                                                            ...stringsOfStringsData,
+                                                            [activeForm]: stringsOfStringsData[activeForm].filter((s) => s.id != str.id)
+                                                        };
+                                                        setStringsOfStringsData(newStrings);
+                                                    }}>
+                                                    <CancelIcon/>
+                                                </Button>
+                                            </ButtonGroup>
+                                        )
                                     }}
                                     variant="outlined"
                                     />
