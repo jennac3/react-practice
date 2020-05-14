@@ -43,9 +43,6 @@ export function JsonSyncContextProvider(props) {
 
     const formDataState = useState([[]]);
 
-    const jsonCopiedState = useState(false);
-    const [ jsonCopied, setJsonCopied ] = jsonCopiedState;
-
     const jsonStatusState = useState("green");
     const [ jsonStatus, setJsonStatus ] = jsonStatusState;
 
@@ -53,7 +50,6 @@ export function JsonSyncContextProvider(props) {
     const hasstringsOfStringsDataChanged = useCompare(stringsOfStringsData);
     React.useEffect(() => {
       if (hasJsonEditorCodeChanged) {
-        setJsonCopied(false);
         try {
           const jsonObject = JSON.parse(jsonEditorCode);
           setStringsOfStringsData(jsonObject);
@@ -75,7 +71,6 @@ export function JsonSyncContextProvider(props) {
         activeFormState,
         formDataState,
         jsonEditorCodeState,
-        jsonCopiedState,
         jsonStatusState,
     };
 

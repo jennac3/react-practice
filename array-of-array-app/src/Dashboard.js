@@ -213,10 +213,10 @@ class JsonResults extends React.Component {
     render() {
         return (
             <JsonSyncContext.Consumer>{(context) => {
-                const { classes, jsonEditorCodeState, jsonCopiedState, jsonStatusState } = context;
+                const { classes, jsonEditorCodeState, jsonStatusState, stringsOfStringsDataState } = context;
                 const [ jsonEditorCode, setJsonEditorCode ] = jsonEditorCodeState;
-                const [ jsonCopied, setJsonCopied ] = jsonCopiedState;
                 const [ jsonStatus ] = jsonStatusState;
+                const [ stringsOfStringsData, setStringsOfStringsData ] = stringsOfStringsDataState;
 
                 return (
                     <div className={classes.jsonResultsArea}>
@@ -231,16 +231,34 @@ class JsonResults extends React.Component {
 
                             <div style={{ position: 'absolute', right: '0%', bottom: '0%', verticalAlign: "middle" }}>
                                 <Button variant="contained"
+                                        component="label"
                                         color="primary"
-                                        style={{ display: 'inline-block', margin: '5px' }}
-                                        onClick={() => fileDownload(jsonEditorCode, "sample.json")}>
-                                    <DescriptionIcon style={{ marginRight: "5px" }}/>  {"Import"}
+                                        style={{ display: 'inline-block', margin: '5px' }}>
+                                    <input
+                                        type="file"
+                                        style={{ display: 'none' }}
+                                        onChange={(e) => {
+                                            const files = e.target.files;
+                                            if (files.length > 0) {
+                                                const reader = new FileReader();
+                                                reader.readAsText(files[0]);
+                                                let jsonCode;
+                                                reader.onload = r => {
+                                                    jsonCode = r.target.result;
+                                                    setStringsOfStringsData(JSON.parse(jsonCode));
+                                                    console.log("jsoncode2", jsonCode);
+                                                };
+                                                console.log("jsoncode", jsonCode);
+                                            }
+                                        }}
+                                    />
+                                    <DescriptionIcon style={{ marginRight: "5px" }}/>
                                 </Button>
                                 <Button variant="contained"
                                         color="primary"
                                         style={{ display: 'inline-block', margin: '5px' }}
                                         onClick={() => fileDownload(jsonEditorCode, "sample.json")}>
-                                    <SaveAltIcon style={{ marginRight: "5px" }}/>  {"Download"}
+                                    <SaveAltIcon style={{ marginRight: "5px" }}/>
                                 </Button>
                             </div>
                         </div>
