@@ -53,16 +53,12 @@ export default function Dashboard() {
         <div>
             <JsonSyncContextProvider>
                 <Grid container component={Paper} className={classes.chatSection}>
-                    <Grid container xs={2} className={classes.borderRight500}>
-                        <Divider />
-                        <FormsList />
-                    </Grid>
-                    <Grid container className={classes.fitScreen} xs={10}>
-                        <Grid item xs={7} className={classes.borderRight500}>
+                    <Grid container className={classes.fitScreen}>
+                        <Grid item xs={6} className={classes.borderRight500}>
                             <Divider />
-                            <TextFields />
+                            <FormsList />
                         </Grid>
-                        <Grid item xs={5}>
+                        <Grid item xs={6}>
                             <JsonResults />
                         </Grid>
                     </Grid>
@@ -73,38 +69,17 @@ export default function Dashboard() {
 }
 
 
-// NOTE: with JsonSyncContext.Consumer we can do functional approach too!
-class Header extends React.Component {
-    render() {
-        return (
-            <JsonSyncContext.Consumer>{(context) => {
-                const { activeFormState } = context;
-                const [ activeForm ] = activeFormState;
-                return (
-                    <Grid container>
-                        <Grid item xs={12} >
-                            <Typography variant="h5" className="header-message">{activeForm}</Typography>
-                        </Grid>
-                    </Grid>
-                );
-            }}</JsonSyncContext.Consumer>
-        )
-    }
-}
-
-
 class FormsList extends React.Component {
     render() {
         return (
             <JsonSyncContext.Consumer>{(context) => {
-                const { classes, stringsOfStringsDataState, activeFormState } = context;
-                const [ activeForm, changeActiveForm ] = activeFormState;
+                const { classes, stringsOfStringsDataState } = context;
                 const [ stringsOfStringsData, setStringsOfStringsData ] = stringsOfStringsDataState;
 
                 const allForms = Object.keys(stringsOfStringsData);
 
                 return (
-                    <div style={{width: '100%'}}>
+                    <div className={classes.formsArea} style={{width: '100%'}}>
                         <List>
                             <ListItem button key="RemySharp">
                                 <ListItemIcon>
@@ -117,30 +92,31 @@ class FormsList extends React.Component {
                         <List>
                             {allForms.map((form) =>
                                 <ListItem
-                                    className={form == activeForm ? classes.activeForm : 'null'}
                                     button
-                                    onClick={(e) => changeActiveForm(e.target.innerText)}
                                     key={form}>
-                                    <ListItemText primary={form}>
-                                        {form}
+                                    <ListItemText>
+                                        <Button className={classes.activeForm}>
+                                            {form}
+                                        </Button>
+                                        <TextFields form={form}></TextFields>
                                     </ListItemText>
                                 </ListItem>
                             )}
-                            <Button
-                                variant="contained"
-                                color="action"
-                                onClick={() => {
-                                    const newFormTitle = '@F' + Math.random(1000).toFixed(2) * 1000;
-                                    const newStrings = {
-                                        ...stringsOfStringsData,
-                                        [newFormTitle]: [
-                                        ]
-                                    };
-                                    setStringsOfStringsData(newStrings);
-                                }}>
-                                <AddIcon/>
-                            </Button>
                         </List>
+                        <Button
+                            variant="contained"
+                            color="action"
+                            onClick={() => {
+                                const newFormTitle = '@F' + Math.random(1000).toFixed(2) * 1000;
+                                const newStrings = {
+                                    ...stringsOfStringsData,
+                                    [newFormTitle]: [
+                                    ]
+                                };
+                                setStringsOfStringsData(newStrings);
+                            }}>
+                            <AddIcon/>
+                        </Button>
                     </div>
                 );
             }}</JsonSyncContext.Consumer>
@@ -149,120 +125,99 @@ class FormsList extends React.Component {
 }
 
 
-class TextFields extends React.Component {
-    render() {
-        return (
-            <JsonSyncContext.Consumer>{(context) => {
-                const { classes, stringsOfStringsDataState, activeFormState } = context;
-                const [ activeForm ] = activeFormState;
-                const [ stringsOfStringsData, setStringsOfStringsData ] = stringsOfStringsDataState;
+export function TextFields(props) {
+    return (
+        <JsonSyncContext.Consumer>{(context) => {
+            const { form } = props;
+            //alert(JSON.stringify(form));
+            const { classes, stringsOfStringsDataState } = context;
+            const [ stringsOfStringsData, setStringsOfStringsData ] = stringsOfStringsDataState;
 
-                const onReorderClick = (index, newIndex) => {
-                    const newStringsData = stringsOfStringsData[activeForm];
-                    if (newIndex < 0 || newIndex >= newStringsData.length) return;
-                    // swap values
-                    const swapVal = newStringsData[index];
-                    newStringsData[index] = newStringsData[newIndex];
-                    newStringsData[newIndex] = swapVal;
+            const onReorderClick = (index, newIndex) => {
+                const newStringsData = stringsOfStringsData[form];
+                if (newIndex < 0 || newIndex >= newStringsData.length) return;
+                // swap values
+                const swapVal = newStringsData[index];
+                newStringsData[index] = newStringsData[newIndex];
+                newStringsData[newIndex] = swapVal;
 
-                    console.log(JSON.stringify({
-                        ...stringsOfStringsData,
-                        [activeForm]: newStringsData
-                    }));
+                console.log(JSON.stringify({
+                    ...stringsOfStringsData,
+                    [form]: newStringsData
+                }));
 
-                    console.log(JSON.stringify(newStringsData));
+                console.log(JSON.stringify(newStringsData));
 
-                    setStringsOfStringsData({
-                        ...stringsOfStringsData,
-                        [activeForm]: newStringsData
-                    });
-                    /*
-                    let newErrorSchema;
-                    if (this.props.errorSchema) {
-                        newErrorSchema = {};
-                        const errorSchema = this.props.errorSchema;
-                        for (let i in errorSchema) {
-                            if (i == index) {
-                                newErrorSchema[newIndex] = errorSchema[index];
-                            } else if (i == newIndex) {
-                                newErrorSchema[index] = errorSchema[newIndex];
-                            } else {
-                                newErrorSchema[i] = errorSchema[i];
-                            }
-                        }
-                    }
-                    const newStrings = {
+                setStringsOfStringsData({
+                    ...stringsOfStringsData,
+                    [form]: newStringsData
+                });
+            }
+
+            return (
+                <div>
+                    <Grid container style={{padding: '20px'}}>
+                        {stringsOfStringsData[form].map((str, index) =>
+                            <TextField
+                                id="outlined-full-width"
+                                value={str.content}
+                                onChange={(e) => {
+                                    const newStrings = {...stringsOfStringsData};
+                                    newStrings[form].forEach((s) => {
+                                        if(s.id == str.id){
+                                            s.content = e.target.value;
+                                        }            
+                                    });
+                                    setStringsOfStringsData(newStrings);
+                                }}
+                                fullWidth
+                                margin="normal"
+                                InputLabelProps={{
+                                    shrink: true,
+                                }}
+                                InputProps={{
+                                    endAdornment: (
+                                        <ButtonGroup color="primary" aria-label="outlined primary button group">
+                                            <Button onClick={() => onReorderClick(index, index - 1)}
+                                                    disabled={index == 0}>
+                                                <ArrowUpwardIcon/>
+                                            </Button>
+                                            <Button onClick={() => onReorderClick(index, index + 1)}
+                                                    disabled={index == stringsOfStringsData[form].length-1}>
+                                                <ArrowDownwardIcon/>
+                                            </Button>
+                                            <Button onClick={() => {
+                                                    const newStrings = {
+                                                        ...stringsOfStringsData,
+                                                        [form]: stringsOfStringsData[form].filter((s) => s.id != str.id)
+                                                    };
+                                                    setStringsOfStringsData(newStrings);
+                                                }}>
+                                                <CancelIcon/>
+                                            </Button>
+                                        </ButtonGroup>
+                                    )
+                                }}
+                                variant="outlined"
+                                />
+                        )}
+                    </Grid>
+                    <Button variant="contained" color="action" onClick={() => {
+                        const newStrings = {
                             ...stringsOfStringsData,
-                            [activeForm]: stringsOfStringsData[activeForm].filter((s) => s.id != str.id)
+                            [form]: [
+                                ...stringsOfStringsData[form],
+                                {id: Date.now(), content: ''}
+                            ]
                         };
                         setStringsOfStringsData(newStrings);
-                    */
-                }
-                return (
-                    <div className={classes.messageArea}>
-                        <Grid container style={{padding: '20px'}}>
-                            {stringsOfStringsData[activeForm].map((str, index) =>
-                                <TextField
-                                    id="outlined-full-width"
-                                    value={str.content}
-                                    onChange={(e) => {
-                                        const newStrings = {...stringsOfStringsData};
-                                        newStrings[activeForm].forEach((s) => {
-                                            if(s.id == str.id){
-                                                s.content = e.target.value;
-                                            }            
-                                        });
-                                        setStringsOfStringsData(newStrings);
-                                    }}
-                                    fullWidth
-                                    margin="normal"
-                                    InputLabelProps={{
-                                        shrink: true,
-                                    }}
-                                    InputProps={{
-                                        endAdornment: (
-                                            <ButtonGroup color="primary" aria-label="outlined primary button group">
-                                                <Button onClick={() => onReorderClick(index, index - 1)}
-                                                        disabled={index == 0}>
-                                                    <ArrowUpwardIcon/>
-                                                </Button>
-                                                <Button onClick={() => onReorderClick(index, index + 1)}
-                                                        disabled={index == stringsOfStringsData[activeForm].length-1}>
-                                                    <ArrowDownwardIcon/>
-                                                </Button>
-                                                <Button onClick={() => {
-                                                        const newStrings = {
-                                                            ...stringsOfStringsData,
-                                                            [activeForm]: stringsOfStringsData[activeForm].filter((s) => s.id != str.id)
-                                                        };
-                                                        setStringsOfStringsData(newStrings);
-                                                    }}>
-                                                    <CancelIcon/>
-                                                </Button>
-                                            </ButtonGroup>
-                                        )
-                                    }}
-                                    variant="outlined"
-                                    />
-                            )}
-                        </Grid>
-                        <Button variant="contained" color="action" onClick={() => {
-                            const newStrings = {
-                                ...stringsOfStringsData,
-                                [activeForm]: [
-                                    ...stringsOfStringsData[activeForm],
-                                    {id: Date.now(), content: ''}
-                                ]
-                            };
-                            setStringsOfStringsData(newStrings);
-                        }}>
-                            <AddIcon />
-                        </Button>
-                    </div>
-                );
-            }}</JsonSyncContext.Consumer>
-        );
-    }
+                    }}>
+                        <AddIcon />
+                    </Button>
+                </div>
+            );
+        }}</JsonSyncContext.Consumer>
+    );
 }
 
 class JsonResults extends React.Component {

@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 
 
 const useStyles = makeStyles({
-    messageArea: {
+    formsArea: {
       minHeight: '100vh',
       maxHeight: '100vh',
       overflowY: 'scroll'
@@ -41,7 +41,6 @@ export function JsonSyncContextProvider(props) {
     const [ jsonEditorCode, setJsonEditorCode ] = jsonEditorCodeState;
 
     const forms = Object.keys(stringsOfStringsData);
-    const activeFormState = useState(forms[0]);
 
     const formDataState = useState([[]]);
 
@@ -70,7 +69,6 @@ export function JsonSyncContextProvider(props) {
     const state = {
         classes,
         stringsOfStringsDataState,
-        activeFormState,
         formDataState,
         jsonEditorCodeState,
         jsonStatusState,
