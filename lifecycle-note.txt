@@ -1,0 +1,67 @@
+componentDidMount
+componentDidUpdate
+componentWiillUncount
+
+
+
+<Component1 />
+class Component1 {
+    render() {}
+}
+
+mounts -> render()
+
+DidMount() onlt happens once for the entire life of the component
+
+this.setState() -> render()
+
+do not use it often
+componentDidUpdate() -> this.setState infinite LOOP
+
+{
+        this.state.value = this.props.value --> return;
+    whenyou call this.setStte(0, requires termintating condition)}
+
+// navigate to a different page, Component1 is no longer needed
+
+
+before the element gets removed fromt he DOM
+
+componentWillUnmount()
+
+componentDidMount() {
+    / fetching required data for the component
+    // parsing initial value
+    // doing some kind o finit
+
+
+    // when we start data polling
+}
+
+this.state = {
+    second: 0,
+}
+
+componentDidMount() {
+    this.timer = setInterval(() => {
+        this.setState((preState) => {
+            return {
+                second: prevState.second + 1,
+            }
+        })
+    }, 1000);
+
+    startPollingForData()
+}
+
+componentWillUnmount() {
+    // clean up for anything that won't be garbage collected
+    clearInterval(this.timer);
+    stopPollingForData()
+}
+
+render() {
+    return <div> {this.state.second} </div>
+}
+
+socket from chat application is singleton
