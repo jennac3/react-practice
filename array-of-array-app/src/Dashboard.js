@@ -12,25 +12,35 @@ import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import AddIcon from '@material-ui/icons/Add';
 import CancelIcon from '@material-ui/icons/Cancel';
+import InputLabel from '@material-ui/core/InputLabel';
 import ReactJson from 'react-json-view';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import SaveAltIcon from '@material-ui/icons/SaveAlt';
+import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import Editor from 'react-simple-code-editor';
 import { highlight, languages } from 'prismjs/components/prism-core';
 import {CopyToClipboard} from 'react-copy-to-clipboard';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
-import SaveIcon from '@material-ui/icons/Save';
 import { green } from '@material-ui/core/colors';
 import 'prismjs/components/prism-clike';
 import 'prismjs/components/prism-javascript';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import ErrorIcon from '@material-ui/icons/Error';
 import fileDownload from 'js-file-download';
+import SaveIcon from '@material-ui/icons/Save';
 import DescriptionIcon from '@material-ui/icons/Description';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
+import EditIcon from '@material-ui/icons/Edit';
+import IconButton from '@material-ui/core/IconButton';
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
+import InputBase from '@material-ui/core/InputBase';
 import ToggleButton from '@material-ui/lab/ToggleButton';
 import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
+import ExpandLessIcon from '@material-ui/icons/ExpandLess';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
+import NativeSelect from '@material-ui/core/NativeSelect';
 
 import {JsonSyncContext, JsonSyncContextProvider} from './JsonSyncContextProvider';
 
@@ -53,7 +63,6 @@ export default function Dashboard() {
     return (
         <div>
             <JsonSyncContextProvider>
-                <Header/>
                 <Grid container component={Paper} className={classes.chatSection}>
                     <Grid container className={classes.fitScreen}>
                         <Grid item xs={6} className={classes.borderRight500}>
@@ -93,52 +102,107 @@ class FormsList extends React.Component {
     render() {
         return (
             <JsonSyncContext.Consumer>{(context) => {
-                const { classes, stringsOfStringsDataState, activeFormState } = context;
-                const [ stringsOfStringsData, setStringsOfStringsData ] = stringsOfStringsDataState;
+                const { classes, formDataState, activeFormState, editedFormState, newFormNameState } = context;
+                const [ formData, setFormData ] = formDataState;
                 const [ activeForm, setActiveForm ] = activeFormState;
+                const [ editedForm, setEditedForm ] = editedFormState;
+                const [ newFormName, setNewFormName ] = newFormNameState;
 
-                const allForms = Object.keys(stringsOfStringsData);
+                const allForms = Object.keys(formData);
 
                 return (
                     <div className={classes.formsArea} style={{width: '100%'}}>
+                        <Header></Header>
                         <List>
-                            {allForms.map((form) =>
-                                <ListItem
-                                    key={form}>
-                                    <ListItemText>
-                                        <ToggleButton
-                                            style={{width: '100%'}}
-                                            value="check"
-                                            selected={activeForm == form}
-                                            onChange={() => {
-                                                if (activeForm == form) {
-                                                    setActiveForm(null);
-                                                } else {
-                                                    setActiveForm(form);
+                            <div>
+                                {allForms.map((form) =>
+                                    <div>
+                                        <ListItem alignItems="flex-start">
+                                            <ListItemText>
+                                                {editedForm == form
+                                                    ?
+                                                    <TextField
+                                                        id="outlined-full-width"
+                                                        margin="normal"
+                                                        defaultValue={form}
+                                                        InputLabelProps={{
+                                                            shrink: true,
+                                                        }}
+                                                        onChange={(e) => {
+                                                            /*const newFormTitle = e.target.value;
+                                                            const newFormData = {
+                                                                ...formData,
+                                                                [newFormTitle]: [
+                                                                    {"id": Date.now(), "widget-type": "hello"}
+                                                                ]
+                                                            };
+                                                            setFormData(newFormData);*/
+                                                            setNewFormName(e.target.value);
+                                                        }}
+                                                        InputLabelProps={{
+                                                            shrink: true,
+                                                        }}
+                                                        InputProps={{
+                                                            endAdornment: (
+                                                                <Button>
+                                                                    <SaveIcon onClick={() => {
+                                                                        setEditedForm(null);
+                                                                    }}/>
+                                                                </Button>
+                                                            )
+                                                        }}
+                                                    />
+                                                    :
+                                                    <div>
+                                                        {form}
+                                                        <Button onClick={() => setEditedForm(form)}>
+                                                            <EditIcon/>
+                                                        </Button>
+                                                    </div>
                                                 }
-                                            }}
-                                            >
-                                            {form}
-                                        </ToggleButton>
-                                        {activeForm === form &&
-                                            <TextFields form={form} />
-                                        }
-                                    </ListItemText>
-                                </ListItem>
-                            )}
+                                            </ListItemText>
+                                            <ListItemSecondaryAction>
+                                                <IconButton edge="end" aria-label="comments">
+                                                    {activeForm == form
+                                                        ?
+                                                        <ExpandLessIcon onClick={() => {
+                                                            setActiveForm(null);
+                                                        }}/>
+                                                        :
+                                                        <ExpandMoreIcon onClick={() => {
+                                                            setActiveForm(form);
+                                                        }}/>
+                                                    }
+                                                </IconButton>
+                                            </ListItemSecondaryAction>
+                                        </ListItem>
+                                        <ListItem alignItems="flex-start">
+                                            {activeForm === form &&
+                                                <TextFields form={form} />
+                                            }
+                                        </ListItem>
+                                    </div>
+                                )}
+                            </div>
                         </List>
                         <Button
                             variant="contained"
                             color="action"
                             onClick={() => {
                                 const newFormTitle = '@F' + Math.random(1000).toFixed(2) * 1000;
-                                const newStrings = {
-                                    ...stringsOfStringsData,
+                                const newFormData = {
+                                    ...formData,
                                     [newFormTitle]: [
-                                        {"id": Date.now(), "content": "hello"}
+                                        {
+                                            "id": Date.now(),
+                                            "widget-type": "",
+                                            "widget-attributes": {
+
+                                            }
+                                        }
                                     ]
                                 };
-                                setStringsOfStringsData(newStrings);
+                                setFormData(newFormData);
                                 setActiveForm(newFormTitle);
                             }}>
                             <AddIcon/>
@@ -156,90 +220,196 @@ export function TextFields(props) {
         <JsonSyncContext.Consumer>{(context) => {
             const { form } = props;
             //alert(JSON.stringify(form));
-            const { classes, stringsOfStringsDataState } = context;
-            const [ stringsOfStringsData, setStringsOfStringsData ] = stringsOfStringsDataState;
+            const { classes, formDataState } = context;
+            const [ formData, setFormData ] = formDataState;
+
+            const addWidget = () => {
+                const newFormData = {
+                    ...formData,
+                    [form]: [
+                        ...formData[form],
+                        {
+                            "id": Date.now(),
+                            "widget-type": "",
+                            "widget-attributes": {
+                                
+                            }
+                        }
+                    ]
+                };
+                setFormData(newFormData);
+            }
+
+            const changeWidget = (formId, widgetType) => {
+                const newFormData = {...formData};
+                newFormData[form].forEach((s) => {
+                    if(s.id == formId){
+                        s["widget-type"] = widgetType;
+                        // TODO replace hardcoding
+                        if (widgetType == "radio-group") {
+                            s["widget-attributes"] = {
+                                "layout": "",
+                                "default": "",
+                            }
+                        } else if (widgetType == "select") {
+                            s["widget-attributes"] = {
+                                "default": "",
+                            }
+                        }
+                    } 
+                });
+                setFormData(newFormData);
+            }
+
+            return (
+                <Grid container style={{padding: '20px', border: '1px solid #e0e0e0', margin: '10px'}}>
+                    <List>
+                        {formData[form].map((eachFormData, index) =>
+                            <div>
+                            <ListItem>
+                                <FormControl variant="outlined">
+                                    <InputLabel htmlFor="outlined-age-native-simple">Widget Type</InputLabel>
+                                    <Select
+                                        native
+                                        label="Age"
+                                        inputProps={{
+                                            name: 'age',
+                                            id: 'outlined-age-native-simple',
+                                        }}
+                                        value={eachFormData["widget-type"]}
+                                        onChange={(e) => {
+                                            changeWidget(eachFormData.id, e.target.value);
+                                        }}
+                                        >
+                                        <option aria-label="None" value="" />
+                                        <option value={"radio-group"}>radio-group</option>
+                                        <option value={"select"}>select</option>
+                                    </Select>
+                                </FormControl>
+                            </ListItem>
+                            <ListItem>
+                                <WidgetField form={form} formIndex={index} />
+                            </ListItem>
+                            <Divider />
+                            </div>
+                        )}
+                        <Button variant="contained" color="action" onClick={() => addWidget()}>
+                            <AddIcon />
+                        </Button>
+                    </List>
+                </Grid>
+            );
+        }}</JsonSyncContext.Consumer>
+    );
+}
+
+export function WidgetField(props) {
+    return (
+        <JsonSyncContext.Consumer>{(context) => {
+            const { form, formIndex } = props;
+
+            //alert(JSON.stringify(form));
+            const { classes, formDataState } = context;
+            const [ formData, setFormData ] = formDataState;
+
+            const widgetType = formData[form][formIndex]["widget-type"];
 
             const onReorderClick = (index, newIndex) => {
-                const newStringsData = stringsOfStringsData[form];
-                if (newIndex < 0 || newIndex >= newStringsData.length) return;
+                const newFormData = formData[form];
+                if (newIndex < 0 || newIndex >= newFormData.length) return;
                 // swap values
-                const swapVal = newStringsData[index];
-                newStringsData[index] = newStringsData[newIndex];
-                newStringsData[newIndex] = swapVal;
+                const swapVal = newFormData[index];
+                newFormData[index] = newFormData[newIndex];
+                newFormData[newIndex] = swapVal;
 
                 console.log(JSON.stringify({
-                    ...stringsOfStringsData,
-                    [form]: newStringsData
+                    ...formData,
+                    [form]: newFormData
                 }));
 
-                console.log(JSON.stringify(newStringsData));
+                console.log(JSON.stringify(newFormData));
 
-                setStringsOfStringsData({
-                    ...stringsOfStringsData,
-                    [form]: newStringsData
+                setFormData({
+                    ...formData,
+                    [form]: newFormData
                 });
             }
 
             return (
+                <ListItem alignItems="flex-start">
+                    <WidgetAttributesField form={form} formIndex={formIndex} widgetType={widgetType}/>
+                </ListItem>
+            );
+        }}</JsonSyncContext.Consumer>
+    );
+}
+
+export function WidgetAttributesField(props) {
+    return (
+        <JsonSyncContext.Consumer>{(context) => {
+            const { widgetType, form, formIndex } = props;
+            return (
+                {
+                    "radio-group": (
+                    <div>
+                        <WidgetTextField asking={"layout"} form={form} formIndex={formIndex}/>
+                        <WidgetTextField asking={"default"} form={form} formIndex={formIndex}/>
+                        <WidgetOptionsField asking={"default"} form={form} formIndex={formIndex} />
+                    </div>
+                    ),
+                    "select": (
+                    <div>
+                        <WidgetTextField asking={"values"} form={form} formIndex={formIndex}/>
+                        <WidgetOptionsField asking={"default"} form={form} formIndex={formIndex} />
+                    </div>
+                    ),
+                }[widgetType]
+            );
+        }}</JsonSyncContext.Consumer>
+    );
+}
+
+class WidgetTextField extends React.Component {
+    render() {
+        return (
+            <JsonSyncContext.Consumer>{(context) => {
+                const { asking, form, formIndex } = this.props;
+    
+                const { classes, formDataState } = context;
+                const [ formData, setFormData ] = formDataState;
+
+                const changeWidgetAttributes = (newAttributeVal) => {
+                    const newFormData = {
+                        ...formData,
+                    };
+                    newFormData[form][formIndex]["widget-attributes"][asking] = newAttributeVal;
+                    setFormData(newFormData);
+                }
+
+                return (
+                    <div>
+                        <TextField
+                            id="outlined-full-width"
+                            value={formData[form][formIndex]["widget-attributes"][asking]}
+                            onChange={(e) => changeWidgetAttributes(e.target.value)}
+                            placeholder={asking}
+                            fullWidth
+                            margin="normal"
+                            variant="outlined"
+                            />
+                    </div>
+                );
+            }}</JsonSyncContext.Consumer>
+        );
+    }
+}
+
+export function WidgetOptionsField(props) {
+    return (
+        <JsonSyncContext.Consumer>{(context) => {
+            const { asking } = props;
+            return (
                 <div>
-                    <Grid container style={{padding: '20px'}}>
-                        {stringsOfStringsData[form].map((str, index) =>
-                            <TextField
-                                id="outlined-full-width"
-                                value={str.content}
-                                onChange={(e) => {
-                                    const newStrings = {...stringsOfStringsData};
-                                    newStrings[form].forEach((s) => {
-                                        if(s.id == str.id){
-                                            s.content = e.target.value;
-                                        }            
-                                    });
-                                    setStringsOfStringsData(newStrings);
-                                }}
-                                fullWidth
-                                margin="normal"
-                                InputLabelProps={{
-                                    shrink: true,
-                                }}
-                                InputProps={{
-                                    endAdornment: (
-                                        <ButtonGroup color="primary" aria-label="outlined primary button group">
-                                            <Button onClick={() => onReorderClick(index, index - 1)}
-                                                    disabled={index == 0}>
-                                                <ArrowUpwardIcon/>
-                                            </Button>
-                                            <Button onClick={() => onReorderClick(index, index + 1)}
-                                                    disabled={index == stringsOfStringsData[form].length-1}>
-                                                <ArrowDownwardIcon/>
-                                            </Button>
-                                            <Button onClick={() => {
-                                                    const newStrings = {
-                                                        ...stringsOfStringsData,
-                                                        [form]: stringsOfStringsData[form].filter((s) => s.id != str.id)
-                                                    };
-                                                    setStringsOfStringsData(newStrings);
-                                                }}>
-                                                <CancelIcon/>
-                                            </Button>
-                                        </ButtonGroup>
-                                    )
-                                }}
-                                variant="outlined"
-                                />
-                        )}
-                    </Grid>
-                    <Button variant="contained" color="action" onClick={() => {
-                        const newStrings = {
-                            ...stringsOfStringsData,
-                            [form]: [
-                                ...stringsOfStringsData[form],
-                                {id: Date.now(), content: ''}
-                            ]
-                        };
-                        setStringsOfStringsData(newStrings);
-                    }}>
-                        <AddIcon />
-                    </Button>
                 </div>
             );
         }}</JsonSyncContext.Consumer>
@@ -250,10 +420,10 @@ class JsonResults extends React.Component {
     render() {
         return (
             <JsonSyncContext.Consumer>{(context) => {
-                const { classes, jsonEditorCodeState, jsonStatusState, stringsOfStringsDataState } = context;
+                const { classes, jsonEditorCodeState, jsonStatusState, formDataState } = context;
                 const [ jsonEditorCode, setJsonEditorCode ] = jsonEditorCodeState;
                 const [ jsonStatus ] = jsonStatusState;
-                const [ stringsOfStringsData, setStringsOfStringsData ] = stringsOfStringsDataState;
+                const [ formData, setFormData ] = formDataState;
 
                 return (
                     <div className={classes.jsonResultsArea}>
@@ -271,31 +441,46 @@ class JsonResults extends React.Component {
                                         component="label"
                                         color="primary"
                                         style={{ display: 'inline-block', margin: '5px' }}>
-                                    <input
-                                        type="file"
-                                        style={{ display: 'none' }}
-                                        onChange={(e) => {
-                                            const files = e.target.files;
-                                            if (files.length > 0) {
-                                                const reader = new FileReader();
-                                                reader.readAsText(files[0]);
-                                                let jsonCode;
-                                                reader.onload = r => {
-                                                    jsonCode = r.target.result;
-                                                    setStringsOfStringsData(JSON.parse(jsonCode));
-                                                    console.log("jsoncode2", jsonCode);
-                                                };
-                                                console.log("jsoncode", jsonCode);
-                                            }
-                                        }}
-                                    />
-                                    <DescriptionIcon style={{ marginRight: "5px" }}/>
+                                    <Grid container direction="row" alignItems="center">
+                                        <Grid item>
+                                            <input
+                                                type="file"
+                                                style={{ display: 'none' }}
+                                                onChange={(e) => {
+                                                    const files = e.target.files;
+                                                    if (files.length > 0) {
+                                                        const reader = new FileReader();
+                                                        reader.readAsText(files[0]);
+                                                        let jsonCode;
+                                                        reader.onload = r => {
+                                                            jsonCode = r.target.result;
+                                                            setFormData(JSON.parse(jsonCode));
+                                                            console.log("jsoncode2", jsonCode);
+                                                        };
+                                                        console.log("jsoncode", jsonCode);
+                                                    }
+                                                }}
+                                            />
+                                            <DescriptionIcon style={{ marginRight: "5px" }}/>
+                                        </Grid>
+                                        <Grid item>
+                                            Upload
+                                        </Grid>
+                                    </Grid>
                                 </Button>
+                                
                                 <Button variant="contained"
                                         color="primary"
                                         style={{ display: 'inline-block', margin: '5px' }}
                                         onClick={() => fileDownload(jsonEditorCode, "sample.json")}>
-                                    <SaveAltIcon style={{ marginRight: "5px" }}/>
+                                    <Grid container direction="row" alignItems="center">
+                                        <Grid item>
+                                            <SaveAltIcon style={{ marginRight: "5px" }}/>
+                                        </Grid>
+                                        <Grid item>
+                                            Download
+                                        </Grid>
+                                    </Grid>
                                 </Button>
                             </div>
                         </div>

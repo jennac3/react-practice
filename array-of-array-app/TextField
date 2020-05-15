@@ -1,0 +1,42 @@
+<TextField
+                            id="outlined-full-width"
+                            value={str.content}
+                            onChange={(e) => {
+                                const newStrings = {...formData};
+                                newStrings[form].forEach((s) => {
+                                    if(s.id == str.id){
+                                        s.content = e.target.value;
+                                    }            
+                                });
+                                setFormData(newStrings);
+                            }}
+                            fullWidth
+                            margin="normal"
+                            InputLabelProps={{
+                                shrink: true,
+                            }}
+                            InputProps={{
+                                endAdornment: (
+                                    <ButtonGroup color="primary" aria-label="outlined primary button group">
+                                        <Button onClick={() => onReorderClick(index, index - 1)}
+                                                disabled={index == 0}>
+                                            <ArrowUpwardIcon/>
+                                        </Button>
+                                        <Button onClick={() => onReorderClick(index, index + 1)}
+                                                disabled={index == formData[form].length-1}>
+                                            <ArrowDownwardIcon/>
+                                        </Button>
+                                        <Button onClick={() => {
+                                                const newStrings = {
+                                                    ...formData,
+                                                    [form]: formData[form].filter((s) => s.id != str.id)
+                                                };
+                                                setFormData(newStrings);
+                                            }}>
+                                            <CancelIcon/>
+                                        </Button>
+                                    </ButtonGroup>
+                                )
+                            }}
+                            variant="outlined"
+                            />
