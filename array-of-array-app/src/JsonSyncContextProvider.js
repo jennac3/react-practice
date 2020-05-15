@@ -49,6 +49,9 @@ export function JsonSyncContextProvider(props) {
 
     const hasJsonEditorCodeChanged = useCompare(jsonEditorCode);
     const hasstringsOfStringsDataChanged = useCompare(stringsOfStringsData);
+
+    const activeFormState = React.useState(forms[0]);
+
     React.useEffect(() => {
       if (hasJsonEditorCodeChanged) {
         try {
@@ -72,6 +75,7 @@ export function JsonSyncContextProvider(props) {
         formDataState,
         jsonEditorCodeState,
         jsonStatusState,
+        activeFormState,
     };
 
     return (

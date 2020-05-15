@@ -29,6 +29,7 @@ import fileDownload from 'js-file-download';
 import DescriptionIcon from '@material-ui/icons/Description';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
+import ToggleButton from '@material-ui/lab/ToggleButton';
 import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
 
 import {JsonSyncContext, JsonSyncContextProvider} from './JsonSyncContextProvider';
@@ -52,6 +53,7 @@ export default function Dashboard() {
     return (
         <div>
             <JsonSyncContextProvider>
+                <Header/>
                 <Grid container component={Paper} className={classes.chatSection}>
                     <Grid container className={classes.fitScreen}>
                         <Grid item xs={6} className={classes.borderRight500}>
@@ -68,37 +70,59 @@ export default function Dashboard() {
     );
 }
 
+class Header extends React.Component {
+    render() {
+        return (
+            <div>
+                <List>
+                    <ListItem button key="RemySharp">
+                        <ListItemIcon>
+                            <Avatar alt="Avatar" src="https://icons.iconarchive.com/icons/papirus-team/papirus-mimetypes/512/app-json-icon.png" />
+                        </ListItemIcon>
+                        <ListItemText primary="JSON syncer"></ListItemText>
+                    </ListItem>
+                </List>
+                <Divider />
+            </div>
+        )
+    }
+}
+
 
 class FormsList extends React.Component {
     render() {
         return (
             <JsonSyncContext.Consumer>{(context) => {
-                const { classes, stringsOfStringsDataState } = context;
+                const { classes, stringsOfStringsDataState, activeFormState } = context;
                 const [ stringsOfStringsData, setStringsOfStringsData ] = stringsOfStringsDataState;
+                const [ activeForm, setActiveForm ] = activeFormState;
 
                 const allForms = Object.keys(stringsOfStringsData);
 
                 return (
                     <div className={classes.formsArea} style={{width: '100%'}}>
                         <List>
-                            <ListItem button key="RemySharp">
-                                <ListItemIcon>
-                                    <Avatar alt="Avatar" src="https://icons.iconarchive.com/icons/papirus-team/papirus-mimetypes/512/app-json-icon.png" />
-                                </ListItemIcon>
-                                <ListItemText primary="JSON syncer"></ListItemText>
-                            </ListItem>
-                        </List>
-                        <Divider />
-                        <List>
                             {allForms.map((form) =>
                                 <ListItem
-                                    button
                                     key={form}>
                                     <ListItemText>
-                                        <Button className={classes.activeForm}>
+                                        <ToggleButton
+                                            style={{width: '100%'}}
+                                            value="check"
+                                            selected={activeForm == form}
+                                            onChange={() => {
+                                                if (activeForm == form) {
+                                                    setActiveForm(null);
+                                                } else {
+                                                    setActiveForm(form);
+                                                }
+                                            }}
+                                            >
                                             {form}
-                                        </Button>
-                                        <TextFields form={form}></TextFields>
+                                        </ToggleButton>
+                                        {activeForm === form &&
+                                            <TextFields form={form} />
+                                        }
                                     </ListItemText>
                                 </ListItem>
                             )}
@@ -111,9 +135,11 @@ class FormsList extends React.Component {
                                 const newStrings = {
                                     ...stringsOfStringsData,
                                     [newFormTitle]: [
+                                        {"id": Date.now(), "content": "hello"}
                                     ]
                                 };
                                 setStringsOfStringsData(newStrings);
+                                setActiveForm(newFormTitle);
                             }}>
                             <AddIcon/>
                         </Button>
